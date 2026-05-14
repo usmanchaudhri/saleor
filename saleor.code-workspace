@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../storefront"
+		},
+		{
+			"path": "../saleor-dashboard"
+		}
+	],
+	"settings": {}
+}
