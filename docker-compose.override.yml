@@ -11,7 +11,7 @@ x-saleor-env: &saleor-env
   SECRET_KEY: ${SECRET_KEY:-changeme}
   DEBUG: "True"
   # Django ALLOWED_HOSTS must include the API service hostname for SSR from the storefront container.
-  ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+  ALLOWED_HOSTS: localhost,127.0.0.1,api
   ALLOWED_CLIENT_HOSTS: localhost,127.0.0.1,api
   HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS: "True"
   DEFAULT_FROM_EMAIL: noreply@example.com
@@ -19,13 +19,14 @@ x-saleor-env: &saleor-env
   DASHBOARD_URL: http://localhost:9000/
   DEFAULT_CHANNEL_SLUG: default-channel
   # Must match the host port mapped to the API (see api ports). Otherwise media/thumbnail URLs point at :8000 and images break in the browser.
-  PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8001/}
-
+  PUBLIC_URL: http://localhost:8001/
 
 services:
   api:
     build: .
-    # Published ports: docker-compose.override.yml (local) or docker-compose.prod.yml (production).
+    # Host 8000 is often taken by other dev servers; use 8001 to avoid clashes.
+    ports:
+      - "8001:8000"
     environment:
       <<: *saleor-env
     depends_on:
@@ -39,12 +40,10 @@ services:
     volumes:
       - saleor-media:/app/media
     healthcheck:
-      # /health/ is handled in ASGI (see saleor/asgi/health_check.py), not Django — works with
-      # SECURE_SSL_REDIRECT and production ALLOWED_HOSTS (Host: api.kayapure.com only).
       test:
         [
           "CMD-SHELL",
-          'python -c "import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/health/\")"',
+          'python -c "import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/\")"',
         ]
       interval: 5s
       timeout: 5s

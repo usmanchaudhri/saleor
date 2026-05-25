@@ -35,3 +35,7 @@ Pipfile
 # Exported results file
 django-queries-results.html
 !.claude/skills
+
+# Local compose debug artifacts (not used by docker compose)
+test-compose.txt
+admin@*

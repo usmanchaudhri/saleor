@@ -1,0 +1,78 @@
+# Production overrides for docker-compose.yml
+#
+# Image names — set in .env.production (replace YOUR_DOCKERHUB_USER):
+#   KAYAPURE_SALEOR_IMAGE=YOUR_DOCKERHUB_USER/kayapure-saleor:latest
+#   KAYAPURE_DASHBOARD_IMAGE=YOUR_DOCKERHUB_USER/kayapure-dashboard:latest
+#   KAYAPURE_STOREFRONT_IMAGE=YOUR_DOCKERHUB_USER/kayapure-storefront:latest
+#
+# Required in .env.production (DEBUG=False):
+#   SECRET_KEY=...                    # openssl rand -base64 48
+#   RSA_PRIVATE_KEY=...               # PEM for JWT (see below)
+# Optional: API_HOST_PORT=8002          # if 8001 is taken; point Caddy at 127.0.0.1:8002
+#
+# Generate JWT key (keep secret; same key across api/worker/scheduler restarts):
+#   openssl genrsa -out jwt_key.pem 2048
+# Put in .env.production as one line (replace real newlines with \n):
+#   RSA_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n-----END RSA PRIVATE KEY-----"
+# Or on the server: export RSA_PRIVATE_KEY="$(cat jwt_key.pem)" before compose up.
+#
+# Lightsail deploy (pull pre-built images; do not use --build):
+#   docker compose --env-file .env.production \
+#     -f docker-compose.yml -f docker-compose.prod.yml pull
+#   docker compose --env-file .env.production \
+#     -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+x-saleor-prod-secrets: &saleor-prod-secrets
+  RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:?Set RSA_PRIVATE_KEY in .env.production (required when DEBUG=False)}
+
+services:
+  api:
+    image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
+    # Local dev ports live in docker-compose.override.yml only (avoids merging with base).
+    # Caddy/nginx → 127.0.0.1:${API_HOST_PORT:-8001}
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8001}:8000"
+    environment:
+      <<: *saleor-prod-secrets
+      DEBUG: "False"
+      # Public hostname + Docker service name + loopback (healthcheck / internal SSR).
+      ALLOWED_HOSTS: api.kayapure.com,api,127.0.0.1,localhost
+      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com,api,127.0.0.1,localhost
+      PUBLIC_URL: https://api.kayapure.com/
+      DASHBOARD_URL: https://dashboard.kayapure.com/
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             exec uvicorn saleor.asgi:application --host=0.0.0.0 --port=8000 --workers=2 --lifespan=on --ws=none --no-server-header --no-access-log --timeout-keep-alive=35 --timeout-graceful-shutdown=30 --limit-max-requests=10000"
+
+  worker:
+    image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
+    environment:
+      <<: *saleor-prod-secrets
+      DASHBOARD_URL: https://dashboard.kayapure.com/
+      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
+
+  scheduler:
+    image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
+    environment:
+      <<: *saleor-prod-secrets
+      DASHBOARD_URL: https://dashboard.kayapure.com/
+
+  dashboard:
+    image: ${KAYAPURE_DASHBOARD_IMAGE:?Set KAYAPURE_DASHBOARD_IMAGE in .env.production}
+    ports:
+      - "127.0.0.1:9000:80"
+    environment:
+      API_URL: https://api.kayapure.com/graphql/
+      APP_MOUNT_URI: /
+      STATIC_URL: /
+
+  storefront:
+    image: ${KAYAPURE_STOREFRONT_IMAGE:?Set KAYAPURE_STOREFRONT_IMAGE in .env.production}
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NEXT_PUBLIC_SALEOR_API_URL: https://api.kayapure.com/graphql/
+      NEXT_PUBLIC_STOREFRONT_URL: https://storefront.kayapure.com
+      NEXT_PUBLIC_DEFAULT_CHANNEL: default-channel
+      # SSR inside Docker network (browser still uses NEXT_PUBLIC_SALEOR_API_URL)
+      SALEOR_API_URL: http://api:8000/graphql/
