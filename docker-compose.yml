@@ -124,8 +124,7 @@ services:
       args:
         # Baked into the Vite build; browser calls this GraphQL endpoint.
         API_URL: http://localhost:8001/graphql/
-    ports:
-      - "9000:80"
+    # Published ports: docker-compose.override.yml (local) or docker-compose.prod.yml (production).
     environment:
       API_URL: http://localhost:8001/graphql/
     depends_on:
@@ -140,8 +139,7 @@ services:
     build:
       context: ../storefront
       dockerfile: Dockerfile.dev
-    ports:
-      - "3001:3000"
+    # Published ports: docker-compose.override.yml (local) or docker-compose.prod.yml (production).
     environment:
       NEXT_PUBLIC_SALEOR_API_URL: http://localhost:8001/graphql/
       NEXT_PUBLIC_STOREFRONT_URL: http://localhost:3001
