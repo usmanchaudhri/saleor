@@ -25,6 +25,14 @@
 x-saleor-prod-secrets: &saleor-prod-secrets
   RSA_PRIVATE_KEY: ${RSA_PRIVATE_KEY:?Set RSA_PRIVATE_KEY in .env.production (required when DEBUG=False)}
 
+x-saleor-aws-media: &saleor-aws-media
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+  AWS_MEDIA_BUCKET_NAME: ${AWS_MEDIA_BUCKET_NAME:-}
+  AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME:-}
+  AWS_MEDIA_CUSTOM_DOMAIN: ${AWS_MEDIA_CUSTOM_DOMAIN:-}
+  AWS_QUERYSTRING_AUTH: "False"
+
 services:
   api:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
@@ -33,7 +41,7 @@ services:
     ports:
       - "127.0.0.1:${API_HOST_PORT:-8001}:8000"
     environment:
-      <<: *saleor-prod-secrets
+      <<: [*saleor-prod-secrets, *saleor-aws-media]
       DEBUG: "False"
       # Public hostname + Docker service name + loopback (healthcheck / internal SSR).
       ALLOWED_HOSTS: api.kayapure.com,api,127.0.0.1,localhost
@@ -47,14 +55,14 @@ services:
   worker:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
     environment:
-      <<: *saleor-prod-secrets
+      <<: [*saleor-prod-secrets, *saleor-aws-media]
       DASHBOARD_URL: https://dashboard.kayapure.com/
       ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
 
   scheduler:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
     environment:
-      <<: *saleor-prod-secrets
+      <<: [*saleor-prod-secrets, *saleor-aws-media]
       DASHBOARD_URL: https://dashboard.kayapure.com/
 
   dashboard:
