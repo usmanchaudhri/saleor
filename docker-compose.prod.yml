@@ -75,7 +75,6 @@ services:
       APP_MOUNT_URI: /
       STATIC_URL: /
       EXTENSIONS_API_URL: https://apps.saleor.io/api/v1/extensions
-      IS_CLOUD_INSTANCE: "false"
 
 
   storefront:
