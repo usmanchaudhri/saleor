@@ -49,6 +49,7 @@ services:
       PUBLIC_URL: https://api.kayapure.com/
       DASHBOARD_URL: https://dashboard.kayapure.com/
       EMAIL_URL: ${EMAIL_URL}
+      USER_EMAIL_URL: ${USER_EMAIL_URL}
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-info@kayapure.com}      
     command: >
       sh -c "python manage.py migrate --noinput &&
@@ -61,6 +62,7 @@ services:
       DASHBOARD_URL: https://dashboard.kayapure.com/
       ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
       EMAIL_URL: ${EMAIL_URL}
+      USER_EMAIL_URL: ${USER_EMAIL_URL}
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-info@kayapure.com}      
 
   scheduler:
