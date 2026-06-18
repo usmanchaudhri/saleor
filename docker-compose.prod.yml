@@ -48,6 +48,8 @@ services:
       ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com,api,127.0.0.1,localhost
       PUBLIC_URL: https://api.kayapure.com/
       DASHBOARD_URL: https://dashboard.kayapure.com/
+      EMAIL_URL: ${EMAIL_URL}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-info@kayapure.com}      
     command: >
       sh -c "python manage.py migrate --noinput &&
              exec uvicorn saleor.asgi:application --host=0.0.0.0 --port=8000 --workers=2 --lifespan=on --ws=none --no-server-header --no-access-log --timeout-keep-alive=35 --timeout-graceful-shutdown=30 --limit-max-requests=10000"
@@ -58,6 +60,8 @@ services:
       <<: [*saleor-prod-secrets, *saleor-aws-media]
       DASHBOARD_URL: https://dashboard.kayapure.com/
       ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
+      EMAIL_URL: ${EMAIL_URL}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-info@kayapure.com}      
 
   scheduler:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
