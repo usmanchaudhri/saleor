@@ -33,6 +33,15 @@ x-saleor-aws-media: &saleor-aws-media
   AWS_MEDIA_CUSTOM_DOMAIN: ${AWS_MEDIA_CUSTOM_DOMAIN:-}
   AWS_QUERYSTRING_AUTH: "False"
 
+  x-saleor-otel: &saleor-otel
+    OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+    OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-none}
+    OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-none}
+    OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:?Set OTEL_EXPORTER_OTLP_ENDPOINT}
+    OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-grpc}
+    OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+    OTEL_RESOURCE_ATTRIBUTES: service.version=${SALEOR_VERSION:-3.22},deployment.environment=production
+
 services:
   api:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
@@ -42,6 +51,11 @@ services:
       - "127.0.0.1:${API_HOST_PORT:-8001}:8000"
     environment:
       <<: [*saleor-prod-secrets, *saleor-aws-media]
+      OTEL_SERVICE_NAME: saleor-api
+      OTEL_RESOURCE_ATTRIBUTES: service.name=saleor-api,service.version=${SALEOR_VERSION:-3.22},deployment.environment=production
+      # optional: disables Saleor's own usage phone-home
+      SEND_USAGE_TELEMETRY: "False"   
+
       DEBUG: "False"
       # Public hostname + Docker service name + loopback (healthcheck / internal SSR).
       ALLOWED_HOSTS: api.kayapure.com,api,127.0.0.1,localhost
@@ -59,6 +73,10 @@ services:
     image: ${KAYAPURE_SALEOR_IMAGE:?Set KAYAPURE_SALEOR_IMAGE in .env.production}
     environment:
       <<: [*saleor-prod-secrets, *saleor-aws-media]
+      OTEL_SERVICE_NAME: saleor-worker
+      OTEL_RESOURCE_ATTRIBUTES: service.name=saleor-worker,service.version=${SALEOR_VERSION:-3.22},deployment.environment=production
+      SEND_USAGE_TELEMETRY: "False"
+
       DASHBOARD_URL: https://dashboard.kayapure.com/
       ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
       EMAIL_URL: ${EMAIL_URL}
