@@ -112,5 +112,7 @@ services:
       NEXT_PUBLIC_SALEOR_API_URL: https://api.kayapure.com/graphql/
       NEXT_PUBLIC_STOREFRONT_URL: https://storefront.kayapure.com
       NEXT_PUBLIC_DEFAULT_CHANNEL: default-channel
+      CHATBOT_API_URL: ${CHATBOT_API_URL:-https://ai.kayapure.com}
+      CHATBOT_DEFAULT_MODEL: ${CHATBOT_DEFAULT_MODEL:-gemini-flash}
       # SSR inside Docker network (browser still uses NEXT_PUBLIC_SALEOR_API_URL)
       SALEOR_API_URL: http://api:8000/graphql/

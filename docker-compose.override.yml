@@ -146,6 +146,8 @@ services:
       NEXT_PUBLIC_STOREFRONT_URL: http://localhost:3001
       NEXT_PUBLIC_DEFAULT_CHANNEL: default-channel
       SALEOR_API_URL: http://api:8000/graphql/
+      CHATBOT_API_URL: ${CHATBOT_API_URL:-https://chat.kayapure.com}
+      CHATBOT_DEFAULT_MODEL: ${CHATBOT_DEFAULT_MODEL:-chat-fast}
     depends_on:
       api:
         condition: service_healthy
