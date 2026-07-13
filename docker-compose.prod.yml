@@ -121,7 +121,7 @@ services:
       image: ${KAYAPURE_STOREFRONT_FASHION_IMAGE:?Set KAYAPURE_STOREFRONT_FASHION_IMAGE in .env.production}
       # Caddy → 127.0.0.1:${STOREFRONT_HOST_PORT:-3000}
       ports:
-        - "127.0.0.1:${STOREFRONT_HOST_PORT:-3010}:3010"
+        - "127.0.0.1:${STOREFRONT_HOST_PORT:-3010}:3000"
       environment:
         NEXT_PUBLIC_SALEOR_API_URL: https://api.kayapure.com/graphql/
         NEXT_PUBLIC_STOREFRONT_URL: https://fashion.nexagent.ai
