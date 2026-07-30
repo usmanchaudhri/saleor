@@ -65,7 +65,7 @@ services:
       DEBUG: "False"
       # Public hostname + Docker service name + loopback (healthcheck / internal SSR).
       ALLOWED_HOSTS: api.kayapure.com,api,127.0.0.1,localhost
-      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com,api,127.0.0.1,localhost
+      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com,kayapure.com,www.kayapure.com,api,127.0.0.1,localhost
       PUBLIC_URL: https://api.kayapure.com/
       DASHBOARD_URL: https://dashboard.kayapure.com/
       EMAIL_URL: ${EMAIL_URL}
@@ -80,7 +80,7 @@ services:
     environment:
       <<: [*saleor-prod-secrets, *saleor-aws-media, *saleor-otel-worker]
       DASHBOARD_URL: https://dashboard.kayapure.com/
-      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com
+      ALLOWED_CLIENT_HOSTS: api.kayapure.com,dashboard.kayapure.com,storefront.kayapure.com,kayapure.com,www.kayapure.com
       EMAIL_URL: ${EMAIL_URL}
       USER_EMAIL_URL: ${USER_EMAIL_URL}
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-info@kayapure.com}      
@@ -110,7 +110,7 @@ services:
       - "127.0.0.1:${STOREFRONT_HOST_PORT:-3000}:3000"
     environment:
       NEXT_PUBLIC_SALEOR_API_URL: https://api.kayapure.com/graphql/
-      NEXT_PUBLIC_STOREFRONT_URL: https://storefront.kayapure.com
+      NEXT_PUBLIC_STOREFRONT_URL: https://kayapure.com
       NEXT_PUBLIC_DEFAULT_CHANNEL: default-channel
       CHATBOT_API_URL: ${CHATBOT_API_URL:-https://ai.kayapure.com}
       CHATBOT_DEFAULT_MODEL: ${CHATBOT_DEFAULT_MODEL:-gemini-flash}
