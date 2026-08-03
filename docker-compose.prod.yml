@@ -144,3 +144,17 @@ services:
         CHATBOT_DEFAULT_MODEL: ${CHATBOT_DEFAULT_MODEL:-gemini-flash}
         # SSR inside Docker network (browser still uses NEXT_PUBLIC_SALEOR_API_URL)
         SALEOR_API_URL: http://api:8000/graphql/
+
+  storefront-bidbox:
+      image: ${STOREFRONT_BIDBOX_IMAGE:?Set STOREFRONT_BIDBOX_IMAGE in .env.production}
+      # Caddy → 127.0.0.1:${STOREFRONT_HOST_PORT:-3000}
+      ports:
+        - "127.0.0.1:${STOREFRONT_HOST_PORT:-5010}:3000"
+      environment:
+        NEXT_PUBLIC_SALEOR_API_URL: https://api.kayapure.com/graphql/
+        NEXT_PUBLIC_STOREFRONT_URL: https://bidbox.nexagent.ai
+        NEXT_PUBLIC_DEFAULT_CHANNEL: channel-bidbox
+        CHATBOT_API_URL: ${CHATBOT_API_URL:-https://ai.kayapure.com}
+        CHATBOT_DEFAULT_MODEL: ${CHATBOT_DEFAULT_MODEL:-gemini-flash}
+        # SSR inside Docker network (browser still uses NEXT_PUBLIC_SALEOR_API_URL)
+        SALEOR_API_URL: http://api:8000/graphql/
